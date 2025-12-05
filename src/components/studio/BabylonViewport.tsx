@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, StandardMaterial, Color3, Color4, PBRMaterial, CubeTexture, SceneLoader, GlowLayer, DefaultRenderingPipeline } from '@babylonjs/core';
 import '@babylonjs/loaders';
 import { useStudioStore } from '@/stores/studioStore';
@@ -7,12 +7,22 @@ interface BabylonViewportProps {
   onSceneReady?: (scene: Scene) => void;
 }
 
-export const BabylonViewport = ({ onSceneReady }: BabylonViewportProps) => {
+export interface BabylonViewportRef {
+  canvas: HTMLCanvasElement | null;
+  scene: Scene | null;
+}
+
+export const BabylonViewport = forwardRef<BabylonViewportRef, BabylonViewportProps>(({ onSceneReady }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const sceneRef = useRef<Scene | null>(null);
   
   const { viewportSettings, currentFile, setIsLoading, setLoadProgress, setSceneObjects } = useStudioStore();
+
+  useImperativeHandle(ref, () => ({
+    canvas: canvasRef.current,
+    scene: sceneRef.current,
+  }));
 
   const createScene = useCallback((engine: Engine, canvas: HTMLCanvasElement): Scene => {
     const scene = new Scene(engine);
@@ -242,4 +252,6 @@ export const BabylonViewport = ({ onSceneReady }: BabylonViewportProps) => {
       style={{ touchAction: 'none' }}
     />
   );
-};
+});
+
+BabylonViewport.displayName = 'BabylonViewport';

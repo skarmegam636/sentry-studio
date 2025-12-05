@@ -1,8 +1,9 @@
+import { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStudioStore } from '@/stores/studioStore';
 import { Header } from './Header';
 import { Toolbar } from './Toolbar';
-import { BabylonViewport } from './BabylonViewport';
+import { BabylonViewport, BabylonViewportRef } from './BabylonViewport';
 import { SceneHierarchy } from './SceneHierarchy';
 import { DomainTools } from './DomainTools';
 import { PropertiesPanel } from './PropertiesPanel';
@@ -10,11 +11,14 @@ import { ViewportOverlay } from './ViewportOverlay';
 import { WelcomeOverlay } from './WelcomeOverlay';
 
 export const StudioLayout = () => {
+  const viewportRef = useRef<BabylonViewportRef>(null);
   const { leftPanelWidth, rightPanelWidth, currentFile, currentDomain } = useStudioStore();
+
+  const canvasRef = { current: viewportRef.current?.canvas ?? null } as React.RefObject<HTMLCanvasElement>;
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
-      <Header />
+      <Header canvasRef={canvasRef} />
       
       <div className="flex-1 flex overflow-hidden">
         {/* Left Toolbar */}
@@ -47,7 +51,7 @@ export const StudioLayout = () => {
         
         {/* Main Viewport */}
         <div className="flex-1 relative overflow-hidden">
-          <BabylonViewport />
+          <BabylonViewport ref={viewportRef} />
           <ViewportOverlay />
           <WelcomeOverlay />
         </div>
