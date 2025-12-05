@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Upload, 
@@ -7,9 +7,10 @@ import {
   HelpCircle, 
   Maximize2,
   Sun,
-  Moon,
   Cpu,
-  Zap
+  Zap,
+  Plus,
+  Camera
 } from 'lucide-react';
 import { useStudioStore } from '@/stores/studioStore';
 import { getDomainConfig } from '@/lib/domainConfig';
@@ -22,9 +23,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ModelLibrary } from './ModelLibrary';
+import { RenderExport } from './RenderExport';
 
-export const Header = () => {
+interface HeaderProps {
+  canvasRef?: React.RefObject<HTMLCanvasElement> | null;
+}
+
+export const Header = ({ canvasRef }: HeaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [modelLibraryOpen, setModelLibraryOpen] = useState(false);
+  const [renderExportOpen, setRenderExportOpen] = useState(false);
   const { 
     currentDomain, 
     isAnalyzing, 
@@ -127,6 +136,16 @@ export const Header = () => {
         <Button 
           variant="ghost" 
           size="sm" 
+          onClick={() => setModelLibraryOpen(true)}
+          className="gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          size="sm" 
           onClick={handleImportClick}
           className="gap-2"
         >
@@ -134,9 +153,14 @@ export const Header = () => {
           Import
         </Button>
         
-        <Button variant="ghost" size="sm" className="gap-2">
-          <Download className="w-4 h-4" />
-          Export
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setRenderExportOpen(true)}
+          className="gap-2"
+        >
+          <Camera className="w-4 h-4" />
+          Render
         </Button>
         
         <div className="h-6 w-px bg-border mx-1" />
@@ -168,6 +192,18 @@ export const Header = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <ModelLibrary 
+        open={modelLibraryOpen} 
+        onOpenChange={setModelLibraryOpen}
+        onAddModel={(type) => console.log('Add model:', type)}
+      />
+      
+      <RenderExport 
+        open={renderExportOpen}
+        onOpenChange={setRenderExportOpen}
+        canvasRef={canvasRef}
+      />
     </header>
   );
 };
